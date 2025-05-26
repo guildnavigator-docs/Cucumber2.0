@@ -1,0 +1,22 @@
+{
+  "name": "cucumber2.0",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "cucumber-js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@cucumber/cucumber": "^11.3.0",
+    "@cucumber/gherkin": "^32.1.2",
+    "@types/chai-http": "^3.0.5",
+    "chai": "^5.2.0",
+    "chai-http": "^5.1.2",
+    "jsonpath": "^1.1.1",
+    "mocha": "^11.5.0"
+  },
+  "type": "module"
+}
