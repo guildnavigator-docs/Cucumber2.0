@@ -3,8 +3,9 @@ Feature: Locations
     Scenario: Valid Authorized call
         Given I fetch 1 authorized valid location
         Then I expect a 200 error code
-        Then I should get all the expected listed fields
-        Then The fields should have expected data
+        And I should get all the expected listed fields
+        And The fields are in the correct order
+        And The fields should have expected data
 
     Scenario: Valid Unauthorized call
         Given I fetch 1 unauthorized valid location

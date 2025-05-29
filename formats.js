@@ -19,7 +19,7 @@ class Formats{
         PictureId: null,
         Active: true,
         CreatedOn: '2025-05-26T21:55:51.543',
-        LastModifiedOn: '2025-05-26T21:57:15.25',
+        LastModifiedOn: '2000-01-01T00:00:00',
         Email: 'forapitesting@email.com',
         IsExternal: false,
         ContractorId: null,
@@ -62,7 +62,7 @@ class Formats{
         CreatingCompanyId: '05e080fb-d67f-4f2e-9b16-d2ee7abea706',
         IsArchived: false,
         CreatedOn: '2025-05-26T21:57:35.09',
-        LastModifiedOn: '2025-05-28T21:22:59.517'
+        LastModifiedOn: '2000-01-01T00:00:00'
     };
     static expectedLocationFields = [
         "Id",
@@ -76,7 +76,24 @@ class Formats{
         "CreatedOn",
         "LastModifiedOn"
     ];
-
+    static patchableExpectedWorkerValues = {
+        Id: "47c9b2a0-0e47-46fd-9236-7780a01bf4fc",
+        FirstName: 'FOR API TESTING - FIRST NAME',
+        LastName: 'FOR API TESTING - LAST NAME',
+        JobTitle: 'FOR API TESTING - JOB TITLE',
+        StreetAddress: 'FOR API TESTING - ADDRESS',
+        City: 'FOR API TESTING - CITY',
+        PostalCode: 'FOR API TESTING - ZIP',
+        MobileNumber: '555-555-5555',
+        PhoneNumber: '123-456-7890',
+        DateHired: '2000-01-01T00:00:00',
+        //Position: "string", NOT A VALUE IN THE WORKER PROFILE
+        EmployeeNumber: 'FOR API TESTING - EMPLOYEE NUMBER',
+        EmergencyContact1: 'FOR API TESTING - CONTACT  1',
+        EmergencyContact2: 'FOR API TESTING - CONTACT 2',
+        EmergencyNotes: 'FOR API TESTING - NOTES',
+        Email: 'forapitesting@email.com'
+    };
 }
 
 export default Formats;

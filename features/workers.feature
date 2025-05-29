@@ -3,8 +3,9 @@ Feature: Workers
     Scenario: Valid Authorized call
         Given I fetch 1 authorized valid worker
         Then I expect a 200 error code
-        Then I should get all the expected listed fields
-        Then The fields should have expected data
+        And I should get all the expected listed fields
+        And The fields should have expected data
+        And The fields are in the correct order
 
     Scenario: Valid Unauthorized call
         Given I fetch 1 unauthorized valid worker
@@ -21,6 +22,16 @@ Feature: Workers
     Scenario: Multiple Valid Authorized call
         Given I fetch 5 authorized valid workers
         Then I expect a 200 error code
-        Then I should get all the expected listed fields
-        Then The fields should have expected data
+        And I should get all the expected listed fields
+        And The fields should have expected data
 
+    Scenario: Patch Existing Employee Info
+        Given I fetch 1 authorized valid worker
+        Then I should get all the expected listed fields
+        And The fields should have expected data
+        And The fields are in the correct order
+        When I change the notes field
+        And I expect a 200 error code
+        When I fetch 1 authorized valid worker
+        Then The changed field will be present
+        And I change it back

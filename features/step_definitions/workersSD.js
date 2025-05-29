@@ -2,44 +2,23 @@ import Secrets from '../../secret.js'
 import Functions from '../../functions.js'
 import { use, expect, should } from 'chai'
 import {default as chaiHttp, request} from 'chai-http'
-import {Given, Then} from '@cucumber/cucumber'
+import {Given, Then, When} from '@cucumber/cucumber'
 const chai = use(chaiHttp)
 
-//#region Custom Parameter Types
-
-/*
-defineParameterType({
-    name: 'entity',
-    regexp: /(worker|location|form)/,
-    transformer: (s) => s+'s'
-});
-
-defineParameterType({
-    name: 'authorize',
-    regexp: /(authorize|unauthorize)/,
-    transformer: (s) => s+"d"
-});
-*/
-//#endregion
-
 let baseUrl = 'https://api-1.sitedocs.com/api/v1';
-let response;
-let responseBody;
-
+let response, responseBody;
+let auth, id;
 
 let currentEntity;
-let givenEntityValues;
-let expectedEntityValues;
-let givenEntityFields;
 let expectedEntityFields;
 
-let workerDetails;
+let changedFieldValue, changedFieldKey;
 
 Given('I fetch {int} {authorize}(d) {validity} {entity}(s)', async function(count, authorize, validity, entity){
     currentEntity = entity
 
-    let auth = authorize == 'authorized' ? Secrets.GetAuth() : 'unauthorized'
-    let id = validity == 'valid' ? "/"+Functions.GetTestID(entity) : '/00000000-0000-0000-0000-000000000000'
+    auth = authorize == 'authorized' ? Secrets.GetAuth() : 'unauthorized'
+    id = validity == 'valid' ? "/"+Functions.GetTestID(entity) : '/00000000-0000-0000-0000-000000000000'
 
     response = await request.execute(baseUrl)
     .get('/'+entity+id)
@@ -59,7 +38,6 @@ Then('I should get all the expected listed fields', async function(){
     for(let i = 0; i < Object.keys(responseBody).length; i++){
         givenFields[i] = Object.keys(responseBody)[i];
     }
-    //console.log(responseBody)
     expectedEntityFields = Functions.GetExpectedEntityFields(currentEntity)
 
     let valuesJustInGiven = givenFields.filter(x=>!expectedEntityFields.includes(x))
@@ -69,9 +47,86 @@ Then('I should get all the expected listed fields', async function(){
     chai.expect(valuesJustInExpected).to.have.length(0)
 });
 
+Then('The fields are in the correct order', async function(){
+    let expectedOrder = Functions.GetExpectedEntityFields(currentEntity);
+    chai.expect(Object.keys(responseBody)).to.have.ordered.members(expectedOrder)
+});
+
 Then('The fields should have expected data', async function(){
-    let givenJSON = JSON.stringify(responseBody)
+    let cleanedResponseBody = responseBody;
+    cleanedResponseBody['LastModifiedOn'] = '2000-01-01T00:00:00';
+    let givenJSON = JSON.stringify(cleanedResponseBody)
     let expectJson = JSON.stringify(Functions.GetExpectedEntityValues(currentEntity));
 
     chai.expect(givenJSON).equal(expectJson);
 });
+
+When('I change the notes field', async function(){
+    let patchableValues = Functions.GetExpectedPatchableEntityValues(currentEntity);
+    changedFieldValue = Math.random().toFixed(2);
+    patchableValues['EmergencyNotes'] = changedFieldValue;
+
+    response = await request.execute(baseUrl)
+    .patch('/'+currentEntity)
+    .set('Authorization', auth)
+    .send(patchableValues)
+
+    responseBody = response.body;
+});
+
+Then('The changed field will be present', async function(){
+    let response = await request.execute(baseUrl)
+    .get('/'+currentEntity+id)
+    .set('Authorization', auth)
+
+    console.log(response.body)
+
+    for(let i = 0; i < 10; i ++){
+        if(response.body['EmergencyNotes']!=changedFieldValue)
+        {
+            sleepFor(1);
+            response = await request.execute(baseUrl)
+            .get('/'+currentEntity+id)
+            .set('Authorization', auth)
+        }
+        else
+            break;
+    }
+
+    chai.expect(response.body['EmergencyNotes']).to.be.equal(changedFieldValue)
+});
+
+Then('I change it back', async function(){
+    let originalDetails = Functions.GetExpectedPatchableEntityValues(currentEntity);
+
+    response = await request.execute(baseUrl)
+    .patch('/'+currentEntity+id)
+    .set('Authorization', auth)
+    .send(originalDetails)
+
+    sleepFor(2000);
+
+    response = await request.execute(baseUrl)
+    .get('/'+currentEntity+id)
+    .set('Authorization', auth)
+
+    for(let i = 0; i < 10; i ++){
+        if(response.body['EmergencyNotes']!=originalDetails['EmergencyNotes'])
+        {
+            sleepFor(1);
+            response = await request.execute(baseUrl)
+            .get('/'+currentEntity+id)
+            .set('Authorization', auth)
+        }
+        else
+            break;
+    }
+    chai.expect(response.body['EmergencyNotes']).to.be.equal(originalDetails['EmergencyNotes'])
+});
+
+function sleepFor(sleepDuration){
+    var now = new Date().getTime();
+    while(new Date().getTime() < now + sleepDuration){
+        /* Do Nothing */
+    }
+}

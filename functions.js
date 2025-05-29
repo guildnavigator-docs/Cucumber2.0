@@ -9,13 +9,10 @@ class Functions{
         switch(entity){
             case 'workers':
                 return this.testWorker;
-                break;
             case 'locations':
                 return this.testLocation;
-                break;
             default:
-                return 'default'
-                break;
+                console.error('GetTestID defaulted. Check your entity.')
         }
     }
     
@@ -26,7 +23,7 @@ class Functions{
             case 'locations':
                 return Formats.expectedLocationValues;
             default:
-                expect(0).equal(1);
+                console.error('GetExpectedEntityValues defaulted. Check your entity.')
         }
     }
     
@@ -37,9 +34,45 @@ class Functions{
             case 'locations':
                 return Formats.expectedLocationFields;
             default:
-                expect(0).equal(1);
+                console.error('GetExpectedEntityFields defaulted. Check your entity.')
+
         }
     }
+
+    static GetExpectedPatchableEntityValues(entity){
+        switch(entity){
+            case 'workers':
+                return Formats.patchableExpectedWorkerValues;
+                break;
+            case 'locations':
+                //fillin
+                break;
+            default:
+                console.error('GetExpectedPathableEntityFields defaulted. Check your entity.')
+        }
+    }
+
+    static BothEntitiesMatchInOrder(entity1, entity2){
+        entity1Keys = Object.keys(entity1)
+        entity2Keys = Object.keys(entity2)
+        for(let i = 0; i < entity1.length; i++){
+            if (entity1Keys[i]!=entity2Keys[i])
+                return false;
+        }
+        return true;
+    }
+
+    static ConvertGetObjectToPatchObject(entity, object){
+        let patchStructure = this.GetExpectedPatchableEntityValues(entity)
+        for (var key in Object.keys(patchStructure)){
+            if(object[key]!=null)
+                patchStructure[key]=object[key];
+            else
+                delete(patchStructure.key);
+        }
+        return patchStructure;
+    }
+
 }
 
 export default Functions;
