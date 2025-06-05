@@ -73,6 +73,29 @@ class Functions{
         return patchStructure;
     }
 
+    static sleepFor(sleepDuration){
+    var now = new Date().getTime();
+    while(new Date().getTime() < now + sleepDuration){
+        /* Do Nothing */
+        }
+    }
+
+    static GetStatusBodyKey(entity){
+        if(Object.keys(Formats.StatusBodyKeys).includes(entity))
+            return Formats.StatusBodyKeys[entity];
+        throw new error("There exists no Status Body Key for that entity");
+    }
+
+    static clone(obj){
+        if(obj==null || typeof(obj)!='object')
+            return obj;
+
+        var temp = new obj.constructor();
+        for(var key in obj)
+            temp[key] = this.clone(obj[key]);
+
+        return temp
+    }
 }
 
 export default Functions;

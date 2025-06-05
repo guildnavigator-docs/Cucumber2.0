@@ -11,8 +11,10 @@ defineParameterType({
     regexp: /(worker|location|form)/,
     transformer: (s) => s+'s'
 });
+
 defineParameterType({
     name: 'authorize',
     regexp: /(authorize|unauthorize)/,
     transformer: (s) => s+"d"
 });
+

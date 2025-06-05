@@ -94,6 +94,13 @@ class Formats{
         EmergencyNotes: 'FOR API TESTING - NOTES',
         Email: 'forapitesting@email.com'
     };
+
+    //Enter Parameter transformed value and get the body key for activate/deactive(ing)
+    //the entity
+    static StatusBodyKeys = {
+        "workers":"WorkerId",
+        "locations":"LocationId"
+    }
 }
 
 export default Formats;

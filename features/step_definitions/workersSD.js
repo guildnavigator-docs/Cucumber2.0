@@ -62,7 +62,7 @@ Then('The fields should have expected data', async function(){
 });
 
 When('I change the notes field', async function(){
-    let patchableValues = Functions.GetExpectedPatchableEntityValues(currentEntity);
+    let patchableValues = Functions.clone(Functions.GetExpectedPatchableEntityValues(currentEntity));
     changedFieldValue = Math.random().toFixed(2);
     patchableValues['EmergencyNotes'] = changedFieldValue;
 
@@ -79,12 +79,12 @@ Then('The changed field will be present', async function(){
     .get('/'+currentEntity+id)
     .set('Authorization', auth)
 
-    console.log(response.body)
+    //console.log(response.body)
 
     for(let i = 0; i < 10; i ++){
         if(response.body['EmergencyNotes']!=changedFieldValue)
         {
-            sleepFor(1);
+            Functions.sleepFor(1);
             response = await request.execute(baseUrl)
             .get('/'+currentEntity+id)
             .set('Authorization', auth)
@@ -97,36 +97,60 @@ Then('The changed field will be present', async function(){
 });
 
 Then('I change it back', async function(){
-    let originalDetails = Functions.GetExpectedPatchableEntityValues(currentEntity);
+    let originalDetails = Functions.clone(Functions.GetExpectedPatchableEntityValues(currentEntity));
 
     response = await request.execute(baseUrl)
-    .patch('/'+currentEntity+id)
+    .patch('/'+currentEntity)
     .set('Authorization', auth)
     .send(originalDetails)
 
-    sleepFor(2000);
+    Functions.sleepFor(2000);
 
     response = await request.execute(baseUrl)
     .get('/'+currentEntity+id)
     .set('Authorization', auth)
 
-    for(let i = 0; i < 10; i ++){
-        if(response.body['EmergencyNotes']!=originalDetails['EmergencyNotes'])
-        {
-            sleepFor(1);
-            response = await request.execute(baseUrl)
-            .get('/'+currentEntity+id)
-            .set('Authorization', auth)
-        }
-        else
-            break;
-    }
+    //Functions.sleepFor(2000);
+
     chai.expect(response.body['EmergencyNotes']).to.be.equal(originalDetails['EmergencyNotes'])
 });
 
-function sleepFor(sleepDuration){
-    var now = new Date().getTime();
-    while(new Date().getTime() < now + sleepDuration){
-        /* Do Nothing */
-    }
-}
+When('I activate one {entity}', async function(entity){
+    currentEntity = entity;
+    let entityID = Functions.GetTestID(entity)
+
+    response = await request.execute(baseUrl)
+    .post('/'+entity+'/status')
+    .send('{"'+Functions.GetStatusBodyKey(entity)+'": "' + entityID + '"}')
+    .auth('Authorization', auth)
+    .end(function(error, response, body){
+        if(error)
+        {
+            document(error);
+        }
+        else
+        {
+            document();
+        }
+    });
+});
+
+When('I deactivate one {entity}', async function(entity){
+    
+    currentEntity = entity;
+    
+    response = await request.execute(baseUrl)
+    .post('/'+entity+'/status')
+    .del('{'+Functions.GetStatusBodyKey(entity))
+    .auth('Authorization', auth)
+    .end(function(error, response, body){
+        if(error)
+        {
+            document(error);
+        }
+        else
+        {
+            document();
+        }
+    });
+});
